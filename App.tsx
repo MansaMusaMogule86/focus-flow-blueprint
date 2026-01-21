@@ -89,10 +89,7 @@ const EcosystemView: React.FC = () => {
   const [activeLab, setActiveLab] = useState<string | null>(null);
 
   if (activeLab) {
-    const labConfig = LAB_CONFIGS.find(l => l.id === activeLab);
-    if (labConfig) {
-      return <GenericLabShell lab={labConfig} onBack={() => setActiveLab(null)} />;
-    }
+    return <GenericLabShell labId={activeLab} onClose={() => setActiveLab(null)} onSaveToVault={() => { }} />;
   }
 
   return (
