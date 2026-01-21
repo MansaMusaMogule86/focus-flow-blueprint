@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Card, LoadingSpinner } from '../components/ui';
 import { api } from '../services/api';
 import { useStore } from '../store';
@@ -25,11 +26,10 @@ interface PathProgress {
 }
 
 export const PathPage: React.FC = () => {
+    const navigate = useNavigate();
     const [steps, setSteps] = useState<PathStep[]>([]);
     const [progress, setProgress] = useState<PathProgress | null>(null);
     const [loading, setLoading] = useState(true);
-    const [actionLoading, setActionLoading] = useState<string | null>(null);
-    const [activeStep, setActiveStep] = useState<PathStep | null>(null);
     const theme = useStore((state) => state.theme);
 
     useEffect(() => {
@@ -41,12 +41,6 @@ export const PathPage: React.FC = () => {
             const data = await api.path.get();
             setSteps(data.steps);
             setProgress(data.progress);
-
-            // Find the active step
-            const active = data.steps.find((s: PathStep) => s.status === 'in_progress');
-            if (active) {
-                setActiveStep(active);
-            }
         } catch (e) {
             console.error('Failed to fetch path:', e);
         } finally {
@@ -54,38 +48,9 @@ export const PathPage: React.FC = () => {
         }
     };
 
-    const handleStart = async (stepId: string) => {
-        setActionLoading(stepId);
-        try {
-            await api.path.start(stepId);
-            await fetchPath();
-        } catch (e) {
-            console.error('Failed to start step:', e);
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleComplete = async (stepId: string) => {
-        setActionLoading(stepId);
-        try {
-            await api.path.complete(stepId);
-            await fetchPath();
-        } catch (e) {
-            console.error('Failed to complete step:', e);
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleLaunchModule = (step: PathStep) => {
-        // Navigate to the module or dashboard with module selected
-        if (step.moduleId === 'clone') {
-            window.location.href = '/clone';
-        } else {
-            // Navigate to dashboard - module will be selected there
-            window.location.href = `/?module=${step.moduleId}`;
-        }
+    const handleStepClick = (step: PathStep) => {
+        if (step.status === 'locked') return;
+        navigate(`/path/${step.stepNumber}`);
     };
 
     const statusConfig: Record<string, { color: string; bg: string; icon: string; label: string }> = {
@@ -109,12 +74,12 @@ export const PathPage: React.FC = () => {
             <div className="bg-gradient-to-r from-violet-900 via-purple-900 to-fuchsia-900 text-white">
                 <div className="max-w-5xl mx-auto px-6 py-10">
                     <div className="flex items-center justify-between mb-8">
-                        <a
-                            href="/"
+                        <button
+                            onClick={() => navigate('/')}
                             className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
                         >
                             <i className="fa-solid fa-arrow-left" />
-                        </a>
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-4 mb-4">
@@ -161,14 +126,14 @@ export const PathPage: React.FC = () => {
                 <div className="grid gap-4">
                     {steps.map((step, index) => {
                         const config = statusConfig[step.status];
-                        const isClickable = step.status === 'in_progress' || step.status === 'unlocked';
+                        const isClickable = step.status !== 'locked';
 
                         return (
                             <Card
                                 key={step.id}
                                 className={`relative overflow-hidden transition-all duration-300 ${step.status === 'locked' ? 'opacity-50 grayscale' : ''
-                                    } ${isClickable ? 'hover:shadow-lg hover:scale-[1.01] cursor-pointer' : ''}`}
-                                onClick={() => isClickable && step.status === 'in_progress' && handleLaunchModule(step)}
+                                    } ${isClickable ? 'hover:shadow-lg hover:scale-[1.01] cursor-pointer' : 'cursor-not-allowed'}`}
+                                onClick={() => handleStepClick(step)}
                             >
                                 <div className="flex gap-5 p-6">
                                     {/* Step Number & Status */}
@@ -222,70 +187,50 @@ export const PathPage: React.FC = () => {
                                             ))}
                                         </div>
 
-                                        {/* Actions */}
-                                        <div className="flex gap-3">
-                                            {step.status === 'unlocked' && (
-                                                <Button
-                                                    variant="primary"
-                                                    size="sm"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleStart(step.id);
-                                                    }}
-                                                    loading={actionLoading === step.id}
-                                                >
-                                                    <i className="fa-solid fa-play mr-2" />
-                                                    Begin Step
-                                                </Button>
-                                            )}
+                                        {/* Status Messages */}
+                                        {step.status === 'completed' && step.completedAt && (
+                                            <div className="flex items-center gap-2 text-emerald-600">
+                                                <i className="fa-solid fa-circle-check" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest">
+                                                    Completed {new Date(step.completedAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        )}
 
-                                            {step.status === 'in_progress' && (
-                                                <>
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleLaunchModule(step);
-                                                        }}
-                                                    >
-                                                        <i className="fa-solid fa-rocket mr-2" />
-                                                        Launch Module
-                                                    </Button>
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleComplete(step.id);
-                                                        }}
-                                                        loading={actionLoading === step.id}
-                                                    >
-                                                        <i className="fa-solid fa-check mr-2" />
-                                                        Mark Complete
-                                                    </Button>
-                                                </>
-                                            )}
+                                        {step.status === 'unlocked' && (
+                                            <div className="flex items-center gap-2 text-amber-600">
+                                                <i className="fa-solid fa-play-circle" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest">
+                                                    Click to begin this step
+                                                </span>
+                                            </div>
+                                        )}
 
-                                            {step.status === 'completed' && step.completedAt && (
-                                                <div className="flex items-center gap-2 text-emerald-600">
-                                                    <i className="fa-solid fa-circle-check" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                                                        Completed {new Date(step.completedAt).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-                                            )}
+                                        {step.status === 'in_progress' && (
+                                            <div className="flex items-center gap-2 text-blue-600">
+                                                <i className="fa-solid fa-rocket" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest">
+                                                    Click to continue working
+                                                </span>
+                                            </div>
+                                        )}
 
-                                            {step.status === 'locked' && (
-                                                <div className="flex items-center gap-2 text-slate-400">
-                                                    <i className="fa-solid fa-lock" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                                                        Complete previous step to unlock
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
+                                        {step.status === 'locked' && (
+                                            <div className="flex items-center gap-2 text-slate-400">
+                                                <i className="fa-solid fa-lock" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest">
+                                                    Complete previous step to unlock
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
+
+                                    {/* Arrow for clickable steps */}
+                                    {isClickable && (
+                                        <div className="flex items-center">
+                                            <i className="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600" />
+                                        </div>
+                                    )}
                                 </div>
                             </Card>
                         );
@@ -305,13 +250,13 @@ export const PathPage: React.FC = () => {
                             <p className="text-white/80 mb-4">
                                 You've completed all 8 steps of The Elevation Path. Your Clone is now powered by your complete journey.
                             </p>
-                            <a
-                                href="/clone"
+                            <button
+                                onClick={() => navigate('/clone')}
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-2xl font-bold hover:bg-white/90 transition-colors"
                             >
                                 <i className="fa-solid fa-robot" />
                                 Talk to Your Clone
-                            </a>
+                            </button>
                         </div>
                     </Card>
                 )}

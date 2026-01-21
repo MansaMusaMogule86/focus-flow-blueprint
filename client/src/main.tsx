@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store';
 import { api } from './services/api';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PathPage } from './pages/PathPage';
+import { StepPage } from './pages/StepPage';
 import { VaultPage } from './pages/VaultPage';
 import { ClonePage } from './pages/ClonePage';
 import { OnboardingPage } from './pages/OnboardingPage';
@@ -38,7 +39,8 @@ const OnboardingGuard: React.FC<{ children: React.ReactNode }> = ({ children }) 
             const status = await api.onboarding.getStatus();
             setNeedsOnboarding(!status.completed);
         } catch {
-            setNeedsOnboarding(true);
+            // If API fails, allow through (might be first time setup)
+            setNeedsOnboarding(false);
         } finally {
             setChecking(false);
         }
@@ -88,7 +90,7 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Protected routes - require auth AND completed onboarding */}
+                {/* Dashboard - HOME route */}
                 <Route
                     path="/"
                     element={
@@ -100,6 +102,7 @@ const App: React.FC = () => {
                     }
                 />
 
+                {/* PATH Overview - separate from HOME */}
                 <Route
                     path="/path"
                     element={
@@ -111,6 +114,19 @@ const App: React.FC = () => {
                     }
                 />
 
+                {/* Individual PATH Steps - /path/1 through /path/8 */}
+                <Route
+                    path="/path/:stepNumber"
+                    element={
+                        <ProtectedRoute>
+                            <OnboardingGuard>
+                                <StepPage />
+                            </OnboardingGuard>
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Vault */}
                 <Route
                     path="/vault"
                     element={
@@ -122,6 +138,7 @@ const App: React.FC = () => {
                     }
                 />
 
+                {/* Clone */}
                 <Route
                     path="/clone"
                     element={
@@ -133,7 +150,7 @@ const App: React.FC = () => {
                     }
                 />
 
-                {/* Catch all */}
+                {/* Catch all - redirect to home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
