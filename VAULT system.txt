@@ -1,0 +1,68 @@
+You are operating in GOD MODE.
+
+Your task is to build a complete VAULT system for an AI platform.
+
+Context
+The Vault page currently renders empty because there is no backend storage no API no data model and no frontend state.
+
+You must build the Vault as the central memory system of the product.
+
+Vault responsibilities
+Store every AI generated artifact
+Text reports
+Images
+Videos
+Audio
+Scripts
+Metadata
+
+Backend requirements
+Node.js
+Express
+TypeScript
+JWT authentication
+SQLite database
+
+You must implement
+VaultItem data model
+Database schema
+Save to Vault logic
+Fetch Vault items API
+User scoped access
+Secure access control
+
+Required API
+POST /api/vault
+GET /api/vault
+GET /api/vault/:id
+
+Frontend requirements
+React
+TypeScript
+Vault page state hook
+Fetch Vault items on load
+Render grid of Vault cards
+Locked and unlocked visual states
+Empty sealed state only when truly empty
+Click to open Vault item
+
+System rules
+Every module must save output to Vault
+Vault is source of truth
+No hardcoded UI
+No mock data
+Everything functional
+
+Required output
+Backend Vault routes and services
+Database schema
+Frontend Vault page code
+Vault card component
+Explanation of why Vault was empty
+Explanation of how it now works
+
+Do not ask questions.
+Do not leave TODOs.
+Do not fake logic.
+
+Execute immediately.

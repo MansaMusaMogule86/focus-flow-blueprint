@@ -1,0 +1,9 @@
+{
+  "name": "Focus Flow Blueprint",
+  "description": "An 8-week hybrid cohort experience designed by Coach Kay to transition from survival mode to legacy builder using cutting-edge AI tools.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

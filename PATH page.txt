@@ -1,0 +1,39 @@
+You are operating in GOD MODE.
+
+Your task is to fix a broken PATH page in a React AI platform.
+
+Problem
+The PATH page renders empty because it has no journey data, no backend endpoint, and no state logic.
+
+You must:
+1 Define a canonical journey step configuration
+2 Implement a backend endpoint that returns user specific step states
+3 Implement unlock logic
+4 Wire the frontend PATH page to fetch and render steps dynamically
+5 Ensure locked and unlocked states display correctly
+6 Ensure step 1 is unlocked by default
+7 Ensure future steps unlock after completion
+8 Ensure the UI is never empty
+
+Technical constraints
+Frontend Vite React TypeScript
+Backend Node Express
+JWT auth assumed
+SQLite allowed
+
+Required output
+- Backend route GET /api/path
+- Data model for steps
+- Unlock logic
+- Frontend state hook for PATH
+- React component that maps steps to cards
+- Explanation of why the page was empty and how it is fixed
+
+Rules
+No placeholder data
+No static UI only
+Everything must be functional
+Everything must be wired
+No questions asked
+
+Execute immediately.

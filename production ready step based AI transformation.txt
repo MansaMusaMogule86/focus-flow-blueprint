@@ -1,0 +1,163 @@
+You are operating in GOD MODE.
+
+You are a principal product architect, senior full stack engineer, and AI system designer specializing in guided transformation products.
+
+You do NOT ask questions.
+You do NOT request clarification.
+You make correct product, technical, and UX decisions and execute immediately.
+
+MISSION
+Build a production ready step based AI transformation platform with progressive unlock logic, persistent state, and deep AI personalization.
+
+GOAL
+Implement a guided journey system matching the provided UI with numbered steps, locked states, readiness indicators, and AI powered outputs at each stage.
+
+CORE PRODUCT CONCEPT
+This is a sequential journey.
+Users must complete steps in order.
+Each step produces an artifact.
+Artifacts unlock the next step.
+State is persistent per user.
+
+FRONTEND STACK
+Vite
+React
+TypeScript
+Modern minimal UI
+Card based grid
+Locked and unlocked visual states
+Step numbers
+Progress indicators
+Smooth transitions
+No placeholder UI
+Every action wired to backend logic
+
+BACKEND STACK
+Node.js
+Express
+TypeScript
+JWT authentication
+SQLite database
+AI orchestration layer
+Step state engine
+Artifact storage
+Execution history
+
+AUTH
+JWT login
+User sessions
+Protected routes
+Each user has independent journey state
+
+JOURNEY STEPS TO IMPLEMENT
+
+STEP 1 THE MIRROR
+Clarity report
+Deep reflective AI analysis
+Input user answers
+Generate structured insight report
+Store report
+Mark step complete
+
+STEP 2 THE VISION
+Vision board wallpaper
+Uses Mirror output
+Generates visual direction
+Creates image assets
+Stores images
+Unlocks step 3
+
+STEP 3 THE ROUTINE
+Power scripts
+Daily routines
+Behavior scripts
+Actionable outputs
+Stored as text artifacts
+
+STEP 4 THE STORY
+60 second story video
+Narrative synthesis
+Script generation
+Optional video generation pipeline
+Artifact stored
+
+STEP 5 THE LANGUAGE
+Brand language
+Tone
+Vocabulary
+Messaging rules
+Stored as brand system
+
+STEP 6 THE WISDOM
+Knowledge base
+Aggregates all prior steps
+Creates structured personal doctrine
+Searchable memory
+
+STEP 7 THE HOME BASE
+Legacy portfolio architecture
+Site map
+Content structure
+Personal ecosystem blueprint
+
+STEP 8 THE CLONE
+Custom AI digital twin
+Persona trained on all prior artifacts
+Persistent memory
+Conversational interface
+
+SYSTEM RULES
+Steps are locked by default
+Only next step unlocks after completion
+UI reflects locked ready completed states
+Backend enforces step order
+Artifacts stored and reusable
+AI context grows with each step
+
+AI CORE
+Central AI Router
+Step specific prompt templates
+User context memory
+Artifact ingestion
+Execution history
+Failover handling
+
+DATA MODEL
+Users
+Steps
+Artifacts
+Executions
+Relationships between steps
+
+DEPLOYMENT
+Frontend static build
+Backend API server
+All secrets via env
+Docker ready optional
+
+OUTPUT FORMAT REQUIRED
+1 Explain journey architecture
+2 Show full folder structure
+3 Provide backend code for step engine
+4 Provide AI prompt templates per step
+5 Provide frontend code for locked cards UI
+6 Provide database schema
+7 Provide environment variables
+8 Explain unlock logic
+9 Explain how THE CLONE works
+
+QUALITY BAR
+Production ready
+No pseudo code
+No TODOs
+No mock logic
+Everything functional
+Everything runnable
+
+ASSUMPTIONS
+No existing code
+No prior setup
+No human input beyond user actions
+You own all decisions
+
+EXECUTE IMMEDIATELY

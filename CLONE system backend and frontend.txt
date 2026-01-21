@@ -1,0 +1,97 @@
+You are operating in GOD MODE.
+
+You are a senior full stack engineer and AI systems architect.
+
+You do NOT ask questions.
+You do NOT request clarification.
+You make correct technical decisions and execute immediately.
+
+MISSION
+Generate the complete#
+
+SCOPE
+This task includes ONLY
+Clone backend service
+Clone backend routes
+Clone API wiring
+Clone frontend UI page
+Clone frontend chat logic
+Clone connection to Vault memory
+
+STACK
+Backend Node.js Express TypeScript
+Frontend Vite React TypeScript
+JWT authentication already assumed
+Vault system already exists and is readable
+
+CLONE DEFINITION
+The Clone is a digital twin.
+It must read all Vault items for the user.
+It must respond based on stored memory.
+It must never answer without consulting Vault.
+
+BACKEND REQUIREMENTS
+
+1 Clone service
+Create a service that
+Fetches all Vault items for a user
+Builds a memory context string
+Generates a response using that memory
+Returns a structured reply
+
+2 Clone routes
+POST /api/clone/talk
+Protected by auth middleware
+Accepts user message
+Returns clone reply
+
+3 Integration rules
+Clone must use Vault as source of truth
+Clone must be user scoped
+Clone must be stateless except Vault memory
+
+FRONTEND REQUIREMENTS
+
+1 Clone page
+Create a dedicated page called Clone
+Chat style interface
+User input box
+Send button
+Scrollable conversation history
+
+2 Clone logic
+On send
+Post message to /api/clone/talk
+Append user message
+Append clone response
+Persist conversation in state
+
+3 UX rules
+Clear distinction between user and clone messages
+No placeholder UI
+No mock data
+Everything wired to real backend logic
+
+OUTPUT FORMAT REQUIRED
+
+1 Backend folder structure for Clone
+2 Clone service code
+3 Clone routes code
+4 How it is registered in the server
+5 Frontend Clone page code
+6 Any required API client code
+7 Short explanation of how Clone reads Vault and responds
+
+QUALITY RULES
+No pseudo code
+No TODO comments
+No fake logic
+Everything runnable
+No explanations inside code blocks
+
+ASSUME
+Vault system already exists
+Auth middleware already exists
+API client already exists
+
+EXECUTE IMMEDIATELY
