@@ -13,6 +13,18 @@ import ImageLabShell from './shells/ImageLabShell';
 import VideoLabShell from './shells/VideoLabShell';
 import LiveLabShell from './shells/LiveLabShell';
 import ExternalLabShell from './shells/ExternalLabShell';
+import OpalLabShell from './shells/OpalLabShell';
+import StitchLabShell from './shells/StitchLabShell';
+import WhiskLabShell from './shells/WhiskLabShell';
+import NotebookLMLabShell from './shells/NotebookLMLabShell';
+import MarinerLabShell from './shells/MarinerLabShell';
+import ScriptLabShell from './shells/ScriptLabShell';
+import VidsLabShell from './shells/VidsLabShell';
+import NanoBananaLabShell from './shells/NanoBananaLabShell';
+import ImagenLabShell from './shells/ImagenLabShell';
+import VeoLabShell from './shells/VeoLabShell';
+import MusicFXLabShell from './shells/MusicFXLabShell';
+import GeminiLiveLabShell from './shells/GeminiLiveLabShell';
 
 interface GenericLabShellProps {
     labId: string;
@@ -52,6 +64,56 @@ const GenericLabShell: React.FC<GenericLabShellProps> = ({
     };
 
     // Delegate to mode-specific shell
+
+    // Special Overrides for High-Value Labs
+    if (labId === 'opal') {
+        return <OpalLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'stitch') {
+        return <StitchLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'whisk') {
+        return <WhiskLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'notebooklm') {
+        return <NotebookLMLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'project-mariner') {
+        return <MarinerLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'help-me-script') {
+        return <ScriptLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'vids-studio') {
+        return <VidsLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'nano-banana') {
+        return <NanoBananaLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'imagen-4') {
+        return <ImagenLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'veo-3') {
+        return <VeoLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'musicfx') {
+        return <MusicFXLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
+    if (labId === 'gemini-live') {
+        return <GeminiLiveLabShell config={config} onClose={onClose} onSaveToVault={handleSaveToVault} />;
+    }
+
     switch (config.mode) {
         case 'text':
             return (

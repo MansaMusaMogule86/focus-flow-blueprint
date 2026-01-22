@@ -75,3 +75,21 @@ CREATE INDEX IF NOT EXISTS idx_executions_user ON executions(user_id);
 CREATE INDEX IF NOT EXISTS idx_executions_module ON executions(module_id);
 CREATE INDEX IF NOT EXISTS idx_memory_user_module ON memory(user_id, module_id);
 CREATE INDEX IF NOT EXISTS idx_files_user ON files(user_id);
+
+-- Agents table
+CREATE TABLE IF NOT EXISTS agents (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL,
+    system_prompt TEXT NOT NULL,
+    model TEXT DEFAULT 'gemini-1.5-flash',
+    tools TEXT DEFAULT '[]', -- JSON array of enabled tools
+    avatar TEXT,
+    status TEXT DEFAULT 'active', -- active, archived
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_agents_user ON agents(user_id);

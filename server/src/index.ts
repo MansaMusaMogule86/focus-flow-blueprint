@@ -17,6 +17,7 @@ import { vaultRoutes } from './routes/vault.routes.js';
 import { cloneRoutes } from './routes/clone.routes.js';
 import { assistantRoutes } from './routes/assistant.routes.js';
 import { onboardingRoutes } from './routes/onboarding.routes.js';
+import agentRoutes from './routes/agent.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 import { initWebSocketServer } from './services/websocket.service.js';
 
@@ -84,6 +85,7 @@ app.use('/api/vault', vaultRoutes);
 app.use('/api/clone', cloneRoutes);
 app.use('/api/assistant', assistantRoutes);
 app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/agents', agentRoutes);
 
 // Serve static frontend in production
 if (config.isProd) {

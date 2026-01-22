@@ -16,11 +16,13 @@ import Layout from './components/Layout';
 import Assistant from './components/Assistant';
 import ModuleWorkspace from './components/ModuleWorkspace';
 import Workshop from './components/Workshop';
+import AgentRefundry from './components/AgentRefundry';
 import BrandLogo from './components/BrandLogo';
 import ErrorBoundary from './components/ErrorBoundary';
 import GenericLabShell from './components/GenericLabShell';
 import HomeView from './components/HomeView';
 import PathView from './components/PathView';
+import VaultView from './components/VaultView';
 import LoginPage from './components/LoginPage';
 import { AppProvider, useApp } from './context/AppContext';
 import { AppSection, AssetStatus, UserAsset } from './types';
@@ -117,65 +119,6 @@ const EcosystemView: React.FC = () => {
   );
 };
 
-// Vault View
-const VaultView: React.FC = () => {
-  const { state } = useApp();
-
-  return (
-    <div className="space-y-10 animate-in fade-in duration-500">
-      <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-[3rem] p-10 border border-amber-100">
-        <div className="flex items-center gap-6 mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl flex items-center justify-center text-white shadow-lg">
-            <i className="fa-solid fa-vault text-3xl"></i>
-          </div>
-          <div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter text-slate-900">Your Vault</h1>
-            <p className="text-amber-600 font-bold uppercase tracking-widest text-sm mt-1">All your saved creations</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-[3rem] p-10 border border-slate-200 shadow-sm">
-        {Object.values(state.progress).filter(p => p.status === AssetStatus.COMPLETED).length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(state.progress)
-              .filter(([_, value]) => value.status === AssetStatus.COMPLETED)
-              .map(([week, _]) => {
-                const weekNum = parseInt(week);
-                const weekData = CURRICULUM[weekNum - 1];
-                return (
-                  <div key={week} className="p-6 rounded-2xl border border-slate-200 hover:border-amber-400 transition-all">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold">
-                        {weekNum}
-                      </div>
-                      <div>
-                        <h3 className="font-black uppercase tracking-tight text-slate-900">{weekData?.title}</h3>
-                        <p className="text-xs text-amber-600 font-bold uppercase tracking-widest">{weekData?.build_asset}</p>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600">
-                      <i className="fa-solid fa-check-circle mr-1"></i>
-                      Saved to Vault
-                    </span>
-                  </div>
-                );
-              })}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <i className="fa-solid fa-box-open text-4xl text-slate-300"></i>
-            </div>
-            <h3 className="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">Vault Empty</h3>
-            <p className="text-slate-500">Complete PATH steps to save your work here.</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 // Main App Component
 const AppMain: React.FC = () => {
   const { state } = useApp();
@@ -226,7 +169,7 @@ const AppMain: React.FC = () => {
         // PATH - Path Overview + Step Pages (DISTINCT from HOME)
         return <PathView onStartWeek={handleStartWeek} />;
       case AppSection.WORKSPACE:
-        return <Workshop />;
+        return <AgentRefundry />;
       case AppSection.ECOSYSTEM:
         return <EcosystemView />;
       case AppSection.VAULT:

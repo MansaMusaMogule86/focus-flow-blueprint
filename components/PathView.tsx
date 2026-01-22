@@ -192,7 +192,7 @@ const StepContent: React.FC<{ week: number; onBack: () => void; onComplete: () =
 
 // Path Overview - shows all 8 weeks
 const PathView: React.FC<PathViewProps> = ({ onStartWeek }) => {
-    const { state, dispatch } = useApp();
+    const { state, updateAsset } = useApp();
     const [activeStep, setActiveStep] = useState<number | null>(null);
 
     const progressValues = Object.values(state.progress);
@@ -201,7 +201,7 @@ const PathView: React.FC<PathViewProps> = ({ onStartWeek }) => {
 
     const handleCompleteStep = () => {
         if (activeStep) {
-            dispatch({ type: 'COMPLETE_WEEK', week: activeStep });
+            updateAsset(activeStep, {}, AssetStatus.COMPLETED);
             const nextWeek = activeStep + 1;
             if (nextWeek <= 8) {
                 setActiveStep(nextWeek);

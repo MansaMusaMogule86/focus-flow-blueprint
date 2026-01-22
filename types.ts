@@ -7,6 +7,7 @@ export interface WeekData {
   build_asset: string;
   core_question: string;
   phase: string;
+  description?: string;
 }
 
 export enum AssetStatus {

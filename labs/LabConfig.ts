@@ -18,6 +18,9 @@ export interface LabConfig {
     /** FontAwesome icon class (without fa-solid prefix) */
     icon: string;
 
+    /** Gradient class for UI (optional) */
+    gradient?: string;
+
     /** Short description for the Lab card */
     description: string;
 
@@ -54,39 +57,40 @@ export const LAB_CONFIGS: LabConfig[] = [
     // === TEXT MODE LABS ===
     {
         id: 'opal',
-        title: 'Opal',
-        icon: 'fa-feather',
-        description: 'Optimized lite-weight core (Gemini 2.5 Flash-Lite) for high-volume reasoning efficiency.',
+        title: 'Opal App Forge',
+        icon: 'fa-code',
+        description: 'Dedicated application builder. Generates full-stack code structures, components, and logic.',
         mode: 'text',
         color: 'amber',
-        actionLabel: 'Streamline',
+        actionLabel: 'Build App',
         promptKey: 'Opal',
-        placeholder: 'Enter a task for lightweight reasoning...',
+        placeholder: 'Describe the application you want to build...',
         outputFormat: 'markdown'
     },
     {
         id: 'stitch',
-        title: 'Stitch',
-        icon: 'fa-bolt-lightning',
-        description: 'Cutting-edge high-speed multimodal intelligence (Gemini 3 Flash) for real-time interaction.',
+        title: 'Stitch Studio',
+        icon: 'fa-compass-drafting',
+        description: 'Advanced layout and UI design engine. Creates wireframes, component hierarchies, and visual systems.',
         mode: 'text',
         color: 'indigo',
-        actionLabel: 'Initialize',
+        actionLabel: 'Design Layout',
         promptKey: 'Stitch',
-        placeholder: 'Describe a real-time task requiring speed and precision...',
+        placeholder: 'Describe the interface layout and aesthetic...',
         outputFormat: 'markdown'
     },
     {
         id: 'whisk',
         title: 'Whisk',
-        icon: 'fa-wind',
-        description: 'Versatile flash intelligence (Gemini 2.5 Flash) for seamless automation and rapid iteration.',
-        mode: 'text',
+        icon: 'fa-palette',
+        description: 'High-velocity image generation engine for rapid visual concepting and flow.',
+        mode: 'image',
         color: 'emerald',
-        actionLabel: 'Execute',
+        actionLabel: 'Create',
         promptKey: 'Whisk',
-        placeholder: 'Describe a workflow to automate or iterate on...',
-        outputFormat: 'markdown'
+        placeholder: 'Describe the visual concept you want to create...',
+        aspectRatios: ['1:1', '16:9', '9:16', '4:5'],
+        outputFormat: 'image'
     },
     {
         id: 'notebooklm',

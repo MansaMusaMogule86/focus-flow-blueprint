@@ -25,17 +25,16 @@ const Layout: React.FC<LayoutProps> = ({ children, activeSection, setActiveSecti
         <div className="p-8">
           <BrandLogo showText size="md" />
         </div>
-        
+
         <nav className="flex-1 px-4 py-4 space-y-2">
           {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
-              className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-200 ${
-                activeSection === item.id 
-                  ? 'bg-slate-900 text-white shadow-xl shadow-slate-200' 
+              className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-200 ${activeSection === item.id
+                  ? 'bg-slate-900 text-white shadow-xl shadow-slate-200'
                   : 'text-slate-400 hover:bg-slate-50 hover:text-slate-900'
-              }`}
+                }`}
             >
               <i className={`fa-solid ${item.icon} text-lg`}></i>
               <span className="font-bold text-[11px] uppercase tracking-widest">{item.label}</span>
@@ -43,39 +42,28 @@ const Layout: React.FC<LayoutProps> = ({ children, activeSection, setActiveSecti
           ))}
         </nav>
 
-        <div className="p-8 border-t border-slate-100">
-          <div className="flex items-center space-x-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg shadow-indigo-100">CK</div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-tight text-slate-900 leading-none mb-1">Coach Kay</p>
-              <p className="text-[9px] text-indigo-500 font-bold uppercase tracking-widest">Lead Architect</p>
-            </div>
-          </div>
+        {/* Minimal Footer */}
+        <div className="p-8 border-t border-slate-100/50">
+          <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest text-center">v2.0 System</p>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 relative">
         {/* Header - Adaptive padding */}
-        <header className="h-16 lg:h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shadow-sm shrink-0 z-20">
+        <header className="h-16 lg:h-20 bg-white border-b border-slate-50 flex items-center justify-between px-6 lg:px-10 shadow-[0_4px_20px_rgba(0,0,0,0.02)] shrink-0 z-20">
           <div className="flex items-center space-x-3 lg:hidden">
             <BrandLogo size="sm" />
             <h2 className="text-sm font-black text-slate-800 uppercase tracking-tighter">
               {menuItems.find(i => i.id === activeSection)?.label}
             </h2>
           </div>
-          <div className="hidden lg:flex items-center space-x-2">
-             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-             <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-               System Status: Optimized
-             </h2>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex -space-x-2">
-               {[1,2,3].map(i => (
-                 <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold">U{i}</div>
-               ))}
-               <div className="w-8 h-8 rounded-full border-2 border-white bg-indigo-600 flex items-center justify-center text-[10px] font-bold text-white">+12</div>
+          <div className="hidden lg:flex flex-1 justify-end items-center space-x-6">
+            <button className="w-10 h-10 rounded-full hover:bg-slate-50 flex items-center justify-center text-slate-400 transition-colors">
+              <i className="fa-regular fa-bell"></i>
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold text-xs">
+              M
             </div>
           </div>
         </header>
@@ -91,11 +79,10 @@ const Layout: React.FC<LayoutProps> = ({ children, activeSection, setActiveSecti
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
-              className={`flex flex-col items-center justify-center transition-all ${
-                activeSection === item.id 
-                  ? 'text-indigo-600 scale-110' 
+              className={`flex flex-col items-center justify-center transition-all ${activeSection === item.id
+                  ? 'text-indigo-600 scale-110'
                   : 'text-slate-400'
-              }`}
+                }`}
             >
               <i className={`fa-solid ${item.icon} text-lg`}></i>
               <span className="text-[8px] font-black uppercase tracking-tight mt-1">{item.label}</span>
