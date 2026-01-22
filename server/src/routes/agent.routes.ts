@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { db } from '../db';
+import { db } from '../db/index.js';
 import { v4 as uuidv4 } from 'uuid';
-import { authenticateToken } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -19,7 +19,7 @@ const createAgentSchema = z.object({
 const updateAgentSchema = createAgentSchema.partial();
 
 // GET /api/agents - List all agents for user
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
         const result = await db.execute({
@@ -41,7 +41,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // GET /api/agents/:id - Get single agent
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
         const { id } = req.params;
@@ -66,7 +66,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // POST /api/agents - Create new agent
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
         const data = createAgentSchema.parse(req.body);
@@ -98,7 +98,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // PUT /api/agents/:id - Update agent
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
         const { id } = req.params;
@@ -137,7 +137,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/agents/:id - Delete agent
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
         const { id } = req.params;
