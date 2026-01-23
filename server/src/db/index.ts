@@ -37,16 +37,31 @@ export interface Memory {
     updated_at: string;
 }
 
+export interface Agent {
+    id: string;
+    user_id: string;
+    name: string;
+    role: string;
+    system_prompt: string;
+    model: string;
+    tools: string[];
+    avatar: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface DbSchema {
     users: User[];
     executions: Execution[];
     memory: Memory[];
+    agents: Agent[];
 }
 
 const defaultData: DbSchema = {
     users: [],
     executions: [],
     memory: [],
+    agents: [],
 };
 
 // Ensure data directory exists

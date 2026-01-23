@@ -22,16 +22,9 @@ const updateAgentSchema = createAgentSchema.partial();
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
-        const result = await db.execute({
-            sql: 'SELECT * FROM agents WHERE user_id = ? ORDER BY created_at DESC',
-            args: [userId]
-        });
-
-        // Parse tools JSON
-        const agents = result.rows.map(agent => ({
-            ...agent,
-            tools: JSON.parse(agent.tools as string || '[]')
-        }));
+        const agents = db.data.agents
+            .filter(agent => agent.user_id === userId)
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
         res.json(agents);
     } catch (error) {
@@ -46,17 +39,11 @@ router.get('/:id', authMiddleware, async (req, res) => {
         const userId = (req as any).user.userId;
         const { id } = req.params;
 
-        const result = await db.execute({
-            sql: 'SELECT * FROM agents WHERE id = ? AND user_id = ?',
-            args: [id, userId]
-        });
+        const agent = db.data.agents.find(a => a.id === id && a.user_id === userId);
 
-        if (result.rows.length === 0) {
+        if (!agent) {
             return res.status(404).json({ error: 'Agent not found' });
         }
-
-        const agent = result.rows[0];
-        agent.tools = JSON.parse(agent.tools as string || '[]');
 
         res.json(agent);
     } catch (error) {
@@ -71,23 +58,25 @@ router.post('/', authMiddleware, async (req, res) => {
         const userId = (req as any).user.userId;
         const data = createAgentSchema.parse(req.body);
         const id = uuidv4();
+        const now = new Date().toISOString();
 
-        await db.execute({
-            sql: `INSERT INTO agents (id, user_id, name, role, system_prompt, model, tools, avatar)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [
-                id,
-                userId,
-                data.name,
-                data.role,
-                data.system_prompt,
-                data.model || 'gemini-1.5-flash',
-                JSON.stringify(data.tools || []),
-                data.avatar || null
-            ]
-        });
+        const newAgent = {
+            id,
+            user_id: userId,
+            name: data.name,
+            role: data.role,
+            system_prompt: data.system_prompt,
+            model: data.model || 'gemini-1.5-flash',
+            tools: data.tools || [],
+            avatar: data.avatar || null,
+            created_at: now,
+            updated_at: now
+        };
 
-        res.status(201).json({ id, ...data });
+        db.data.agents.push(newAgent);
+        await db.write();
+
+        res.status(201).json(newAgent);
     } catch (error) {
         console.error('Create agent error:', error);
         if (error instanceof z.ZodError) {
@@ -104,29 +93,22 @@ router.put('/:id', authMiddleware, async (req, res) => {
         const { id } = req.params;
         const data = updateAgentSchema.parse(req.body);
 
-        const updates: string[] = [];
-        const args: any[] = [];
+        const agentIndex = db.data.agents.findIndex(a => a.id === id && a.user_id === userId);
 
-        if (data.name) { updates.push('name = ?'); args.push(data.name); }
-        if (data.role) { updates.push('role = ?'); args.push(data.role); }
-        if (data.system_prompt) { updates.push('system_prompt = ?'); args.push(data.system_prompt); }
-        if (data.model) { updates.push('model = ?'); args.push(data.model); }
-        if (data.tools) { updates.push('tools = ?'); args.push(JSON.stringify(data.tools)); }
-        if (data.avatar) { updates.push('avatar = ?'); args.push(data.avatar); }
-
-        updates.push('updated_at = CURRENT_TIMESTAMP');
-        args.push(id, userId);
-
-        if (updates.length === 1) { // Only updated_at
-            return res.json({ message: 'No changes detected' });
+        if (agentIndex === -1) {
+            return res.status(404).json({ error: 'Agent not found' });
         }
 
-        await db.execute({
-            sql: `UPDATE agents SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
-            args
-        });
+        const now = new Date().toISOString();
+        db.data.agents[agentIndex] = {
+            ...db.data.agents[agentIndex],
+            ...data,
+            updated_at: now
+        };
 
-        res.json({ success: true });
+        await db.write();
+
+        res.json(db.data.agents[agentIndex]);
     } catch (error) {
         console.error('Update agent error:', error);
         if (error instanceof z.ZodError) {
@@ -142,10 +124,14 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         const userId = (req as any).user.userId;
         const { id } = req.params;
 
-        await db.execute({
-            sql: 'DELETE FROM agents WHERE id = ? AND user_id = ?',
-            args: [id, userId]
-        });
+        const agentIndex = db.data.agents.findIndex(a => a.id === id && a.user_id === userId);
+
+        if (agentIndex === -1) {
+            return res.status(404).json({ error: 'Agent not found' });
+        }
+
+        db.data.agents.splice(agentIndex, 1);
+        await db.write();
 
         res.json({ success: true });
     } catch (error) {
