@@ -77,6 +77,8 @@ export const PathPage: React.FC = () => {
                         <button
                             onClick={() => navigate('/')}
                             className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                            title="Go Back"
+                            aria-label="Go Back"
                         >
                             <i className="fa-solid fa-arrow-left" />
                         </button>
@@ -110,7 +112,7 @@ export const PathPage: React.FC = () => {
                             <div className="bg-white/10 rounded-full h-4 overflow-hidden">
                                 <div
                                     className="h-full bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 transition-all duration-700 ease-out"
-                                    style={{ width: `${progress.percentage}%` }}
+                                    style={{ width: `${progress.percentage}%` } as React.CSSProperties}
                                 />
                             </div>
                             <p className="text-right text-[10px] font-bold uppercase tracking-widest text-white/50 mt-1">
@@ -156,9 +158,9 @@ export const PathPage: React.FC = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                                             <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${step.status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600' :
-                                                    step.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
-                                                        step.status === 'unlocked' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' :
-                                                            'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                                                step.status === 'in_progress' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
+                                                    step.status === 'unlocked' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' :
+                                                        'bg-slate-100 dark:bg-slate-800 text-slate-500'
                                                 }`}>
                                                 {config.label}
                                             </span>
