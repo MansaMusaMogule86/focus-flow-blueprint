@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { db, dbHelpers, User } from '../db/index.js';
+import { dbHelpers, User } from '../db/index.js';
 import { config } from '../config/index.js';
 import { HttpError } from '../middleware/error.js';
 
@@ -23,7 +23,7 @@ export interface AuthResponse {
 
 export const authService = {
     async register(input: RegisterInput): Promise<AuthResponse> {
-        const existing = dbHelpers.findUser(input.email);
+        const existing = await dbHelpers.findUser(input.email);
         if (existing) {
             throw new HttpError(400, 'Email already registered');
         }
@@ -42,7 +42,7 @@ export const authService = {
             updated_at: now,
         };
 
-        dbHelpers.createUser(user);
+        await dbHelpers.createUser(user);
         const token = this.generateToken(user);
 
         const { password_hash, ...userWithoutPassword } = user;
@@ -50,7 +50,7 @@ export const authService = {
     },
 
     async login(input: LoginInput): Promise<AuthResponse> {
-        const user = dbHelpers.findUser(input.email);
+        const user = await dbHelpers.findUser(input.email);
         if (!user) {
             throw new HttpError(401, 'Invalid credentials');
         }
@@ -72,13 +72,13 @@ export const authService = {
     },
 
     async getUser(userId: string): Promise<Omit<User, 'password_hash'> | null> {
-        const user = dbHelpers.findUserById(userId);
+        const user = await dbHelpers.findUserById(userId);
         if (!user) return null;
         const { password_hash, ...userWithoutPassword } = user;
         return userWithoutPassword;
     },
 
     async updateUser(userId: string, data: Partial<Pick<User, 'name' | 'email'>>): Promise<void> {
-        dbHelpers.updateUser(userId, { ...data, updated_at: new Date().toISOString() });
+        await dbHelpers.updateUser(userId, { ...data, updated_at: new Date().toISOString() });
     },
 };

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "b00a4cdf-50f4-4d88-bc5e-f005801bf7c7",
+    "userId": "04797d2d-2a77-4d3a-b71b-e94d28c9b4a0",
+    "completed": true,
+    "step": "done",
+    "answers": {
+      "goals": [
+        "automate"
+      ],
+      "timeline": "",
+      "experience": "",
+      "commitment": true
+    },
+    "createdAt": "2026-01-24T20:58:13.789Z",
+    "completedAt": "2026-01-24T20:59:26.423Z"
+  }
+]

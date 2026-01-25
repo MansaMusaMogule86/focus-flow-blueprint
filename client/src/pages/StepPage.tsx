@@ -218,8 +218,8 @@ export const StepPage: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('input')}
                         className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'input'
-                                ? 'bg-white dark:bg-slate-700 text-violet-600 shadow'
-                                : 'text-slate-500 hover:text-slate-700'
+                            ? 'bg-white dark:bg-slate-700 text-violet-600 shadow'
+                            : 'text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         <i className="fa-solid fa-brain mr-2" />
@@ -228,8 +228,8 @@ export const StepPage: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('preview')}
                         className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-widest transition-all ${activeTab === 'preview'
-                                ? 'bg-white dark:bg-slate-700 text-violet-600 shadow'
-                                : 'text-slate-500 hover:text-slate-700'
+                            ? 'bg-white dark:bg-slate-700 text-violet-600 shadow'
+                            : 'text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         <i className="fa-solid fa-eye mr-2" />
@@ -290,10 +290,28 @@ export const StepPage: React.FC = () => {
                                     <h3 className="text-lg font-black uppercase tracking-tighter text-slate-900 dark:text-white mb-2">
                                         AI Synthesis
                                     </h3>
-                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 min-h-[200px]">
-                                        <pre className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 font-sans">
-                                            {output}
-                                        </pre>
+                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 min-h-[200px] flex items-center justify-center">
+                                        {step.vaultType === 'image' ? (
+                                            <img
+                                                src={output.startsWith('http') ? output : `http://localhost:3001${output}`}
+                                                alt="Generated Output"
+                                                className="max-w-full rounded-lg shadow-lg"
+                                            />
+                                        ) : step.vaultType === 'video' ? (
+                                            <video
+                                                src={output.startsWith('http') ? output : `http://localhost:3001${output}`}
+                                                controls
+                                                className="max-w-full rounded-lg shadow-lg"
+                                            />
+                                        ) : step.vaultType === 'script' ? (
+                                            <div className="font-mono text-sm whitespace-pre-wrap text-slate-700 dark:text-slate-300 w-full text-left bg-white dark:bg-slate-900 p-6 rounded border border-slate-200 dark:border-slate-700 shadow-inner">
+                                                {output}
+                                            </div>
+                                        ) : (
+                                            <pre className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 font-sans w-full text-left">
+                                                {output}
+                                            </pre>
+                                        )}
                                     </div>
                                 </div>
 

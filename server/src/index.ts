@@ -64,6 +64,15 @@ if (config.isDev) {
     app.use(morgan('combined'));
 }
 
+// Basic landing
+app.get('/', (_req: Request, res: Response) => {
+    res.json({
+        message: '🚀 AI Operating System Server is active',
+        health: '/api/health',
+        api: '/api',
+    });
+});
+
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
     res.json({

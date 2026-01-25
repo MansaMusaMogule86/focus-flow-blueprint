@@ -33,16 +33,16 @@ export const executor = {
             status: 'running',
             created_at: now,
         };
-        dbHelpers.createExecution(execution);
+        await dbHelpers.createExecution(execution);
 
         // Add user message to memory
-        memoryService.addMessage(input.userId, moduleId, {
+        await memoryService.addMessage(input.userId, moduleId, {
             role: 'user',
             content: input.content,
         });
 
         // Get context for module
-        const recentMessages = memoryService.getRecentMessages(input.userId, moduleId, 10);
+        const recentMessages = await memoryService.getRecentMessages(input.userId, moduleId, 10);
         input.context = recentMessages.map(m => `${m.role}: ${m.content}`).join('\n');
 
         try {
@@ -50,13 +50,13 @@ export const executor = {
             const durationMs = Date.now() - startTime;
 
             // Save assistant response to memory
-            memoryService.addMessage(input.userId, moduleId, {
+            await memoryService.addMessage(input.userId, moduleId, {
                 role: 'assistant',
                 content: output.content,
             });
 
             // Update execution record
-            dbHelpers.updateExecution(executionId, {
+            await dbHelpers.updateExecution(executionId, {
                 output: JSON.stringify(output),
                 status: 'completed',
                 duration_ms: durationMs,
@@ -67,7 +67,7 @@ export const executor = {
         } catch (error: any) {
             const durationMs = Date.now() - startTime;
 
-            dbHelpers.updateExecution(executionId, {
+            await dbHelpers.updateExecution(executionId, {
                 status: 'failed',
                 error: error.message,
                 duration_ms: durationMs,
@@ -78,11 +78,11 @@ export const executor = {
         }
     },
 
-    getHistory(userId: string, moduleId?: string, limit: number = 20): Execution[] {
+    async getHistory(userId: string, moduleId?: string, limit: number = 20): Promise<Execution[]> {
         return dbHelpers.getExecutions(userId, moduleId, limit);
     },
 
-    getExecution(executionId: string): Execution | undefined {
+    async getExecution(executionId: string): Promise<Execution | undefined> {
         return dbHelpers.getExecution(executionId);
     },
 

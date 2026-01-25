@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { db } from '../db/index.js';
+import prisma from '../db/prisma.js';
 import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -18,15 +18,24 @@ const createAgentSchema = z.object({
 
 const updateAgentSchema = createAgentSchema.partial();
 
+// Helper to parse JSON tools
+const parseAgent = (agent: any) => ({
+    ...agent,
+    tools: agent.tools ? JSON.parse(agent.tools) : [],
+    created_at: agent.createdAt.toISOString(),
+    updated_at: agent.updatedAt.toISOString(),
+});
+
 // GET /api/agents - List all agents for user
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
-        const agents = db.data.agents
-            .filter(agent => agent.user_id === userId)
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        const agents = await prisma.agent.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
 
-        res.json(agents);
+        res.json(agents.map(parseAgent));
     } catch (error) {
         console.error('List agents error:', error);
         res.status(500).json({ error: 'Failed to fetch agents' });
@@ -39,13 +48,15 @@ router.get('/:id', authMiddleware, async (req, res) => {
         const userId = (req as any).user.userId;
         const { id } = req.params;
 
-        const agent = db.data.agents.find(a => a.id === id && a.user_id === userId);
+        const agent = await prisma.agent.findFirst({
+            where: { id, userId },
+        });
 
         if (!agent) {
             return res.status(404).json({ error: 'Agent not found' });
         }
 
-        res.json(agent);
+        res.json(parseAgent(agent));
     } catch (error) {
         console.error('Get agent error:', error);
         res.status(500).json({ error: 'Failed to fetch agent' });
@@ -57,26 +68,20 @@ router.post('/', authMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.userId;
         const data = createAgentSchema.parse(req.body);
-        const id = uuidv4();
-        const now = new Date().toISOString();
 
-        const newAgent = {
-            id,
-            user_id: userId,
-            name: data.name,
-            role: data.role,
-            system_prompt: data.system_prompt,
-            model: data.model || 'gemini-1.5-flash',
-            tools: data.tools || [],
-            avatar: data.avatar || null,
-            created_at: now,
-            updated_at: now
-        };
+        const newAgent = await prisma.agent.create({
+            data: {
+                userId,
+                name: data.name,
+                role: data.role,
+                systemPrompt: data.system_prompt,
+                model: data.model || 'gemini-1.5-flash',
+                tools: JSON.stringify(data.tools || []),
+                avatar: data.avatar || null,
+            },
+        });
 
-        db.data.agents.push(newAgent);
-        await db.write();
-
-        res.status(201).json(newAgent);
+        res.status(201).json(parseAgent(newAgent));
     } catch (error) {
         console.error('Create agent error:', error);
         if (error instanceof z.ZodError) {
@@ -93,22 +98,28 @@ router.put('/:id', authMiddleware, async (req, res) => {
         const { id } = req.params;
         const data = updateAgentSchema.parse(req.body);
 
-        const agentIndex = db.data.agents.findIndex(a => a.id === id && a.user_id === userId);
+        const existing = await prisma.agent.findFirst({
+            where: { id, userId },
+        });
 
-        if (agentIndex === -1) {
+        if (!existing) {
             return res.status(404).json({ error: 'Agent not found' });
         }
 
-        const now = new Date().toISOString();
-        db.data.agents[agentIndex] = {
-            ...db.data.agents[agentIndex],
-            ...data,
-            updated_at: now
-        };
+        const updateData: any = {};
+        if (data.name) updateData.name = data.name;
+        if (data.role) updateData.role = data.role;
+        if (data.system_prompt) updateData.systemPrompt = data.system_prompt;
+        if (data.model) updateData.model = data.model;
+        if (data.tools) updateData.tools = JSON.stringify(data.tools);
+        if (data.avatar !== undefined) updateData.avatar = data.avatar;
 
-        await db.write();
+        const updated = await prisma.agent.update({
+            where: { id },
+            data: updateData,
+        });
 
-        res.json(db.data.agents[agentIndex]);
+        res.json(parseAgent(updated));
     } catch (error) {
         console.error('Update agent error:', error);
         if (error instanceof z.ZodError) {
@@ -124,14 +135,17 @@ router.delete('/:id', authMiddleware, async (req, res) => {
         const userId = (req as any).user.userId;
         const { id } = req.params;
 
-        const agentIndex = db.data.agents.findIndex(a => a.id === id && a.user_id === userId);
+        const existing = await prisma.agent.findFirst({
+            where: { id, userId },
+        });
 
-        if (agentIndex === -1) {
+        if (!existing) {
             return res.status(404).json({ error: 'Agent not found' });
         }
 
-        db.data.agents.splice(agentIndex, 1);
-        await db.write();
+        await prisma.agent.delete({
+            where: { id },
+        });
 
         res.json({ success: true });
     } catch (error) {

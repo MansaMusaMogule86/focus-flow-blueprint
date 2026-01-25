@@ -64,13 +64,13 @@ router.get('/history', asyncHandler(async (req: AuthRequest, res: Response) => {
     const moduleId = req.query.moduleId as string | undefined;
     const limit = parseInt(req.query.limit as string) || 20;
 
-    const history = executor.getHistory(req.user!.userId, moduleId, limit);
+    const history = await executor.getHistory(req.user!.userId, moduleId, limit);
     res.json(history);
 }));
 
 // Get specific execution
 router.get('/execution/:executionId', asyncHandler(async (req: AuthRequest, res: Response) => {
-    const execution = executor.getExecution(req.params.executionId);
+    const execution = await executor.getExecution(req.params.executionId);
     if (!execution || execution.user_id !== req.user!.userId) {
         throw new HttpError(404, 'Execution not found');
     }
@@ -79,13 +79,13 @@ router.get('/execution/:executionId', asyncHandler(async (req: AuthRequest, res:
 
 // Get memory/context for a module
 router.get('/memory/:moduleId', asyncHandler(async (req: AuthRequest, res: Response) => {
-    const context = memoryService.getContext(req.user!.userId, req.params.moduleId);
+    const context = await memoryService.getContext(req.user!.userId, req.params.moduleId);
     res.json(context);
 }));
 
 // Clear memory for a module
 router.delete('/memory/:moduleId', asyncHandler(async (req: AuthRequest, res: Response) => {
-    memoryService.clearContext(req.user!.userId, req.params.moduleId);
+    await memoryService.clearContext(req.user!.userId, req.params.moduleId);
     res.json({ success: true });
 }));
 

@@ -10,8 +10,8 @@ router.use(authMiddleware);
 
 // GET /api/path - Get user's journey path with progress
 router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
-    const steps = pathService.getPathForUser(req.user!.userId);
-    const progress = pathService.getProgressSummary(req.user!.userId);
+    const steps = await pathService.getPathForUser(req.user!.userId);
+    const progress = await pathService.getProgressSummary(req.user!.userId);
 
     res.json({
         steps,
@@ -26,7 +26,7 @@ router.get('/:stepId', asyncHandler(async (req: AuthRequest, res: Response) => {
         return res.status(404).json({ error: 'Step not found' });
     }
 
-    const userPath = pathService.getPathForUser(req.user!.userId);
+    const userPath = await pathService.getPathForUser(req.user!.userId);
     const userStep = userPath.find(s => s.id === req.params.stepId);
 
     res.json(userStep || { ...step, status: 'locked' });
@@ -34,7 +34,7 @@ router.get('/:stepId', asyncHandler(async (req: AuthRequest, res: Response) => {
 
 // POST /api/path/:stepId/start - Start a step
 router.post('/:stepId/start', asyncHandler(async (req: AuthRequest, res: Response) => {
-    const success = pathService.startStep(req.user!.userId, req.params.stepId);
+    const success = await pathService.startStep(req.user!.userId, req.params.stepId);
 
     if (!success) {
         return res.status(400).json({ error: 'Cannot start this step. It may be locked or already completed.' });
@@ -46,7 +46,7 @@ router.post('/:stepId/start', asyncHandler(async (req: AuthRequest, res: Respons
 // POST /api/path/:stepId/complete - Complete a step
 router.post('/:stepId/complete', asyncHandler(async (req: AuthRequest, res: Response) => {
     const { vaultItemId } = req.body;
-    const result = pathService.completeStep(req.user!.userId, req.params.stepId, vaultItemId);
+    const result = await pathService.completeStep(req.user!.userId, req.params.stepId, vaultItemId);
 
     if (!result.success) {
         return res.status(400).json({ error: result.error });
@@ -67,7 +67,7 @@ router.post('/complete', asyncHandler(async (req: AuthRequest, res: Response) =>
         return res.status(400).json({ error: 'stepId is required' });
     }
 
-    const result = pathService.completeStep(req.user!.userId, stepId, vaultItemId);
+    const result = await pathService.completeStep(req.user!.userId, stepId, vaultItemId);
 
     if (!result.success) {
         return res.status(400).json({ error: result.error });

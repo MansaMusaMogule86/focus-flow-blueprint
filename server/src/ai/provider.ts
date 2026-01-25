@@ -43,6 +43,12 @@ interface AudioResponse {
 // AI provider with text, image, video, and audio generation
 export const aiProvider = {
     async generateText(prompt: string, options: GenerateOptions = {}): Promise<string> {
+        // Mock mode for development/verification
+        if (config.ai.googleApiKey === 'dummy_key_for_verification' || !config.ai.googleApiKey) {
+            console.log('[Mock AI] Generating text for:', prompt.slice(0, 50));
+            return `[MOCK AI RESPONSE]\n\nBased on your input about "${prompt.slice(0, 30)}...", here is a synthesized reflection.\n\nYour strengths in multi-modal synthesis significantly position you for success. The ability to bridge conceptual ideas with technical execution is rare and valuable.\n\nRECOMMENDATION: Focus on building a portfolio that highlights this specific intersection of skills.`;
+        }
+
         const model = options.model || 'gemini-2.0-flash';
 
         const response = await fetch(
@@ -71,6 +77,10 @@ export const aiProvider = {
     },
 
     async generateWithThinking(prompt: string, options: GenerateOptions = {}): Promise<string> {
+        if (config.ai.googleApiKey === 'dummy_key_for_verification' || !config.ai.googleApiKey) {
+            return this.generateText(prompt, options);
+        }
+
         const model = 'gemini-2.0-flash-thinking-exp';
 
         try {
@@ -98,6 +108,13 @@ export const aiProvider = {
     },
 
     async generateImage(prompt: string, aspectRatio: string = '1:1'): Promise<string | null> {
+        if (config.ai.googleApiKey === 'dummy_key_for_verification' || !config.ai.googleApiKey) {
+            console.log('[Mock AI] Generating image for:', prompt.slice(0, 50));
+            // Return a placeholder image (1x1 pixel transparent or a placeholder URL)
+            // Ideally we'd valid base64, but for now let's use a simple colored square pattern
+            return `data:image/svg+xml;base64,${Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#6d28d9"/><text x="50%" y="50%" font-family="Arial" font-size="40" fill="white" text-anchor="middle" dy=".3em">MOCK AI IMAGE</text></svg>').toString('base64')}`;
+        }
+
         try {
             // Try Imagen 3
             const response = await fetch(
@@ -154,6 +171,12 @@ export const aiProvider = {
     },
 
     async generateVideo(prompt: string, aspectRatio: string = '16:9', duration: number = 5): Promise<string | null> {
+        if (config.ai.googleApiKey === 'dummy_key_for_verification' || !config.ai.googleApiKey) {
+            // Return null for video in mock mode for now, or a static placeholder if the UI supports it
+            console.log('[Mock AI] Generating video for:', prompt);
+            return null;
+        }
+
         try {
             // Veo API call (when available)
             const response = await fetch(
@@ -223,6 +246,10 @@ export const aiProvider = {
     },
 
     async generateAudio(prompt: string, duration: number = 30): Promise<string | null> {
+        if (config.ai.googleApiKey === 'dummy_key_for_verification' || !config.ai.googleApiKey) {
+            return null;
+        }
+
         try {
             // MusicFX API (when available)
             const response = await fetch(
@@ -255,6 +282,13 @@ export const aiProvider = {
     },
 
     async searchGrounding(query: string): Promise<{ text: string; sources: any[] }> {
+        if (config.ai.googleApiKey === 'dummy_key_for_verification' || !config.ai.googleApiKey) {
+            return {
+                text: `[MOCK SEARCH] Results for "${query}" would appear here.`,
+                sources: []
+            };
+        }
+
         const model = 'gemini-2.0-flash';
 
         const response = await fetch(

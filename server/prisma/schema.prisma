@@ -1,0 +1,144 @@
+// Prisma Schema for Vitality Antigravity
+// SQLite compatible
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  role          String   @default("user")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  executions        Execution[]
+  memory            Memory[]
+  agents            Agent[]
+  pathProgress      PathProgress[]
+  vaultItems        VaultItem[]
+  onboardingStatus  OnboardingStatus?
+
+  @@index([email])
+  @@map("users")
+}
+
+model Execution {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  moduleId    String    @map("module_id")
+  input       String
+  output      String?
+  status      String    @default("pending")
+  error       String?
+  durationMs  Int?      @map("duration_ms")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([moduleId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("executions")
+}
+
+model Memory {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  moduleId  String   @map("module_id")
+  context   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([userId])
+  @@index([moduleId])
+  @@map("memory")
+}
+
+model Agent {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  name         String
+  role         String
+  systemPrompt String   @map("system_prompt")
+  model        String   @default("gemini-2.0-flash-exp")
+  tools        String   @default("[]") // SQLite doesn't support Json so we store as string
+  avatar       String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("agents")
+}
+
+model PathProgress {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  stepId      String    @map("step_id")
+  status      String    @default("locked")
+  completedAt DateTime? @map("completed_at")
+  vaultItemId String?   @map("vault_item_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stepId])
+  @@index([userId])
+  @@index([status])
+  @@map("path_progress")
+}
+
+model VaultItem {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  type       String
+  title      String
+  content    String
+  moduleId   String   @map("module_id")
+  moduleName String   @map("module_name")
+  metadata   String   @default("{}") // Store JSON as string
+  tags       String   @default("") // Store array as comma separated string? Or just serialize. 
+  // Helper for tags: SQLite doesn't support String[]
+  // We will need to handle serialization in application code or use a relation
+  
+  filePath   String?  @map("file_path")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([moduleId])
+  @@index([createdAt(sort: Desc)])
+  @@map("vault_items")
+}
+
+model OnboardingStatus {
+  userId      String    @id @map("user_id")
+  completed   Boolean   @default(false)
+  currentStep Int       @default(1) @map("current_step")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_status")
+}

@@ -1,8 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
-import path from 'path';
-
-const VAULT_DB_PATH = path.resolve(process.cwd(), 'data/vault.json');
+import prisma from '../db/prisma.js';
 
 export interface VaultItem {
     id: string;
@@ -21,103 +18,106 @@ export interface VaultItem {
 
 export const vaultService = {
     // Save an item to vault
-    save(item: Omit<VaultItem, 'id' | 'createdAt' | 'updatedAt'>): VaultItem {
-        const db = this.getDb();
-        const now = new Date().toISOString();
+    async save(item: Omit<VaultItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<VaultItem> {
+        const newItem = await prisma.vaultItem.create({
+            data: {
+                userId: item.userId,
+                type: item.type,
+                title: item.title,
+                content: item.content,
+                moduleId: item.moduleId,
+                moduleName: item.moduleName,
+                metadata: JSON.stringify(item.metadata || {}),
+                tags: JSON.stringify(item.tags || []),
+                filePath: item.filePath,
+            },
+        });
 
-        const newItem: VaultItem = {
-            ...item,
-            id: uuidv4(),
-            createdAt: now,
-            updatedAt: now,
-        };
-
-        db.push(newItem);
-        this.saveDb(db);
-
-        return newItem;
+        return this.mapPrismaToVaultItem(newItem);
     },
 
     // Get all vault items for a user
-    getAll(userId: string, options?: { type?: string; moduleId?: string; search?: string; limit?: number }): VaultItem[] {
-        const db = this.getDb();
-        let items = db.filter(item => item.userId === userId);
+    async getAll(userId: string, options?: { type?: string; moduleId?: string; search?: string; limit?: number }): Promise<VaultItem[]> {
+        const where: any = { userId };
 
         if (options?.type) {
-            items = items.filter(item => item.type === options.type);
+            where.type = options.type;
         }
 
         if (options?.moduleId) {
-            items = items.filter(item => item.moduleId === options.moduleId);
+            where.moduleId = options.moduleId;
         }
 
         if (options?.search) {
             const search = options.search.toLowerCase();
-            items = items.filter(item =>
-                item.title.toLowerCase().includes(search) ||
-                item.content.toLowerCase().includes(search) ||
-                item.tags.some(tag => tag.toLowerCase().includes(search))
-            );
+            where.OR = [
+                { title: { contains: search } },
+                { content: { contains: search } },
+                // Tags search in stringified JSON is tricky in SQLite, skipping for simplicity or using contains
+                { tags: { contains: search } }
+            ];
         }
 
-        // Sort by newest first
-        items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const items = await prisma.vaultItem.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            take: options?.limit,
+        });
 
-        if (options?.limit) {
-            items = items.slice(0, options.limit);
-        }
-
-        return items;
+        return items.map(this.mapPrismaToVaultItem);
     },
 
     // Get single item
-    getById(userId: string, itemId: string): VaultItem | null {
-        const db = this.getDb();
-        const item = db.find(i => i.id === itemId && i.userId === userId);
-        return item || null;
+    async getById(userId: string, itemId: string): Promise<VaultItem | null> {
+        const item = await prisma.vaultItem.findFirst({
+            where: { id: itemId, userId },
+        });
+
+        return item ? this.mapPrismaToVaultItem(item) : null;
     },
 
     // Update item
-    update(userId: string, itemId: string, updates: Partial<Pick<VaultItem, 'title' | 'content' | 'tags' | 'metadata'>>): VaultItem | null {
-        const db = this.getDb();
-        const index = db.findIndex(i => i.id === itemId && i.userId === userId);
+    async update(userId: string, itemId: string, updates: Partial<Pick<VaultItem, 'title' | 'content' | 'tags' | 'metadata'>>): Promise<VaultItem | null> {
+        const existing = await prisma.vaultItem.findFirst({
+            where: { id: itemId, userId },
+        });
 
-        if (index === -1) return null;
+        if (!existing) return null;
 
-        db[index] = {
-            ...db[index],
-            ...updates,
-            updatedAt: new Date().toISOString(),
-        };
+        const updateData: any = {};
+        if (updates.title) updateData.title = updates.title;
+        if (updates.content) updateData.content = updates.content;
+        if (updates.tags) updateData.tags = JSON.stringify(updates.tags);
+        if (updates.metadata) updateData.metadata = JSON.stringify(updates.metadata);
 
-        this.saveDb(db);
-        return db[index];
+        const updated = await prisma.vaultItem.update({
+            where: { id: itemId },
+            data: updateData,
+        });
+
+        return this.mapPrismaToVaultItem(updated);
     },
 
     // Delete item
-    delete(userId: string, itemId: string): boolean {
-        const db = this.getDb();
-        const index = db.findIndex(i => i.id === itemId && i.userId === userId);
+    async delete(userId: string, itemId: string): Promise<boolean> {
+        const existing = await prisma.vaultItem.findFirst({
+            where: { id: itemId, userId },
+        });
 
-        if (index === -1) return false;
+        if (!existing) return false;
 
-        // Also delete associated file if exists
-        const item = db[index];
-        if (item.filePath) {
-            const filePath = path.resolve(process.cwd(), item.filePath);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
-        }
+        await prisma.vaultItem.delete({
+            where: { id: itemId },
+        });
 
-        db.splice(index, 1);
-        this.saveDb(db);
         return true;
     },
 
     // Get vault stats for user
-    getStats(userId: string): { total: number; byType: Record<string, number>; byModule: Record<string, number> } {
-        const items = this.getAll(userId);
+    async getStats(userId: string): Promise<{ total: number; byType: Record<string, number>; byModule: Record<string, number> }> {
+        const items = await prisma.vaultItem.findMany({
+            where: { userId },
+        });
 
         const byType: Record<string, number> = {};
         const byModule: Record<string, number> = {};
@@ -131,8 +131,8 @@ export const vaultService = {
     },
 
     // Get all items as context string (for Clone)
-    getContextForClone(userId: string): string {
-        const items = this.getAll(userId, { limit: 50 });
+    async getContextForClone(userId: string): Promise<string> {
+        const items = await this.getAll(userId, { limit: 50 });
 
         if (items.length === 0) {
             return 'No vault items yet. The user has not saved any AI-generated content.';
@@ -145,20 +145,21 @@ export const vaultService = {
         return `User's Vault contains ${items.length} items:\n\n${context}`;
     },
 
-    // Database helpers
-    getDb(): VaultItem[] {
-        if (!fs.existsSync(VAULT_DB_PATH)) {
-            const dir = path.dirname(VAULT_DB_PATH);
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-            fs.writeFileSync(VAULT_DB_PATH, '[]');
-            return [];
-        }
-        return JSON.parse(fs.readFileSync(VAULT_DB_PATH, 'utf-8'));
-    },
-
-    saveDb(data: VaultItem[]): void {
-        fs.writeFileSync(VAULT_DB_PATH, JSON.stringify(data, null, 2));
+    // Helper to map Prisma result to VaultItem
+    mapPrismaToVaultItem(item: any): VaultItem {
+        return {
+            id: item.id,
+            userId: item.userId,
+            type: item.type as any,
+            title: item.title,
+            content: item.content,
+            moduleId: item.moduleId,
+            moduleName: item.moduleName,
+            metadata: JSON.parse(item.metadata),
+            tags: JSON.parse(item.tags),
+            filePath: item.filePath || undefined,
+            createdAt: item.createdAt.toISOString(),
+            updatedAt: item.updatedAt.toISOString(),
+        };
     },
 };

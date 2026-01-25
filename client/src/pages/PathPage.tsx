@@ -111,8 +111,8 @@ export const PathPage: React.FC = () => {
                             </div>
                             <div className="bg-white/10 rounded-full h-4 overflow-hidden">
                                 <div
-                                    className="h-full bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 transition-all duration-700 ease-out"
-                                    style={{ width: `${progress.percentage}%` } as React.CSSProperties}
+                                    className="h-full bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 transition-all duration-700 ease-out progress-bar-fill"
+                                    style={{ '--progress-width': `${progress.percentage}%` } as React.CSSProperties}
                                 />
                             </div>
                             <p className="text-right text-[10px] font-bold uppercase tracking-widest text-white/50 mt-1">

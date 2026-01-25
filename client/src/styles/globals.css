@@ -135,3 +135,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.progress-bar-fill {
+  width: var(--progress-width, 0%);
+}
